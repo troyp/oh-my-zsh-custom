@@ -9,7 +9,8 @@ export TERM="xterm-256color"
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 # ZSH_THEME="robbyrussell"
-ZSH_THEME="powerlevel9k-modified/powerlevel9k"
+# ZSH_THEME="powerlevel9k-modified/powerlevel9k"
+ZSH_THEME="troyp/troyp"
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(history time dir rbenv vcs root_indicator)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(history status os_icon)
 POWERLEVEL9K_MODE='awesome-fontconfig'
