@@ -3,7 +3,7 @@
 # | working area |
 # '--------------'
 
-chars="
+local chars="
 ┏━┳━┓
 ┗━┻━┛
 ┃┣┫╋╺╹╸╻╏╍❰❱
@@ -18,17 +18,17 @@ chars="
 # | utility functions |
 # '-------------------'
 
-function getlen() {
+getlen() {
     # http://stackoverflow.com/questions/10564314/
     local zero='%([BSUbfksu]|([FBK]|){*})';
     echo ${#${(S%%)1//$~zero/}};
 }
 
-function strrep() {
+strrep() {
     printf "$1%.0s" {1..$2};
 }
 
-function prompt_hook() {
+prompt_hook() {
     # override to perform command for each new line in shell
     ;
 }
@@ -38,7 +38,7 @@ function prompt_hook() {
 # | prompt |
 # '--------'
 
-function get_prompt() {
+get_prompt() {
     # inspired by Ayatoli's prompt (ayozone.org)
     local error="${?:0:1}";
     local adjustment=3;
