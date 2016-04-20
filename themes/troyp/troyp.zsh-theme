@@ -57,9 +57,14 @@ function get_prompt() {
     local dirstr_adj="$dirstr";
     while ((`getlen "$dirstr_adj"` > left_width - 9)); do
         dirstr_adj=`print ${(S)dirstr_adj/?*\//}`; done;
+    local dirstr_adj_path="${dirstr_adj%/*}/";
+    if [ "$dirstr_adj" = "~" ]; then
+        dirstr_adj_path="";
+    fi
+    local dirstr_adj_dir="${dirstr_adj##*/}";
 
     local left="┏━❰$datestr❱━❰$dirstr_adj❱━";
-    local left_col="$FG4┏━$FG2❰$FG1$datestr$FG2❱━❰$FG1$dirstr_adj$FG2❱━";
+    local left_col="$FG4┏━$FG2❰$FG1$datestr$FG2❱━❰$FG1$dirstr_adj_path$FG3$dirstr_adj_dir$FG2❱━";
     local left_len=`getlen $left_col`;
     local left_padding=`strrep '━' $((left_width - left_len - 1))`
     local left_padded="$left${left_padding}┫";
@@ -72,10 +77,10 @@ function get_prompt() {
 }
 
 PROMPT="\$(get_prompt 111 003 047)";
-ZSH_THEME_GIT_PROMPT_PREFIX=" %{$FG[047]%}git:("
+ZSH_THEME_GIT_PROMPT_PREFIX=" %{$FG[047]%}git:%{$FG[111]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX=" %{$FG[003]❱❱$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY=") %{$FG[009]%}✗"
-ZSH_THEME_GIT_PROMPT_CLEAN=") %{$FG[190]%}✔"
+ZSH_THEME_GIT_PROMPT_DIRTY=" %{$FG[009]%}✗"
+ZSH_THEME_GIT_PROMPT_CLEAN=" %{$FG[190]%}✔"
 
 # -------------------------------------------------------------------------------
 
