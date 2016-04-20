@@ -10,7 +10,7 @@ chars="
 ┌─┬─┐
 └─┴─┘
 │├┤┼╶╵╴╷╎╌❬❭〈〉
-⟪⟫⦑⦒⧼⧽〈〉《》︽︾︿﹀
+⟪⟫⦑⦒⧼⧽〈〉《》︽︾︿﹀✗✓✔❌𐄂
 "
 
 # -------------------------------------------------------------------------------
@@ -28,42 +28,54 @@ function strrep() {
     printf "$1%.0s" {1..$2};
 }
 
+function prompt_hook() {
+    # override to perform command for each new line in shell
+    ;
+}
+
 # -------------------------------------------------------------------------------
 # ,--------,
 # | prompt |
 # '--------'
 
-# inspired by Ayatoli's prompt (ayozone.org)
-
 function get_prompt() {
-    adjustment=3;
-    cols="${3:-$COLUMNS}";
-    left_width=$((cols - adjustment));
-    # list colours with `spectrum_ls`
-    FG1="$FG[$1]";
-    FG2="$FG[$2]";
+    # inspired by Ayatoli's prompt (ayozone.org)
+    local error="${?:0:1}";
+    local adjustment=3;
+    local cols="${4:-$COLUMNS}";
+    local left_width=$((cols - adjustment));
 
+    local FG1="$FG[$1]";
+    local FG2="$FG[$2]";
+    local FG3="${FG[$3]:-$FG1}";
+    local FG4="$FG[$2]";
+    if (( error > 0 )); then FG4="$FG[009]"; fi
 
-    datestr="$(date '+%H:%M, %a %d %b %y')";
-    datestrlen=`getlen "$datestr"`;
-    dirstr="${PWD/$HOME/~}";
-    dirstrlen=`getlen "$dirstr"`;
-    if ((dirstrlen > left_width - 9)); then
-        dirstr_trunc_len=$((dirstrlen - left_width + 9));
-    else
-        dirstr_trunc_len=$dirstrlen;
-    fi;
-    dirstr_adj="$dirstr[1,$dirstr_trunc_len]";
+    local datestr="$(date '+%H:%M, %a %d %b %y')";
+    local datestrlen=`getlen "$datestr"`;
+    local dirstr="${PWD/$HOME/~}";
+    local dirstr_adj="$dirstr";
+    while ((`getlen "$dirstr_adj"` > left_width - 9)); do
+        dirstr_adj=`print ${(S)dirstr_adj/?*\//}`; done;
 
-    left="┏━❰$datestr❱━❰$dirstr_adj❱━";
-    left_col="$FG2┏━❰$FG1$datestr$FG2❱━❰$FG1$dirstr_adj$FG2❱━";
-    left_len=`getlen $left_col`;
-    left_padding=`strrep '━' $((left_width - left_len - 1))`
-    left_padded="$left${left_padding}┫";
-    left_col_padded="$left_col${left_padding}┫";
-    left2_col="┗━━❰%{$FG1%}%!%{$FG2%}❱━┛";
+    local left="┏━❰$datestr❱━❰$dirstr_adj❱━";
+    local left_col="$FG4┏━$FG2❰$FG1$datestr$FG2❱━❰$FG1$dirstr_adj$FG2❱━";
+    local left_len=`getlen $left_col`;
+    local left_padding=`strrep '━' $((left_width - left_len - 1))`
+    local left_padded="$left${left_padding}┫";
+    local left_col_padded="$left_col${left_padding}┫";
+    local left2_col="$FG4┗━$FG2❰%{$FG3%}%!%{$FG2%}❱━❱❱$(git_prompt_info)";
+
+    eval "$prompt_hook";
+
     printf "%s\n%s" "$left_col_padded" "$left2_col %{$reset_color%}";
 }
-PROMPT="\$(get_prompt 011 001)";
+
+PROMPT="\$(get_prompt 111 003 047)";
+ZSH_THEME_GIT_PROMPT_PREFIX=" %{$FG[047]%}git:("
+ZSH_THEME_GIT_PROMPT_SUFFIX=" %{$FG[003]❱❱$reset_color%}"
+ZSH_THEME_GIT_PROMPT_DIRTY=") %{$FG[009]%}✗"
+ZSH_THEME_GIT_PROMPT_CLEAN=") %{$FG[190]%}✔"
 
 # -------------------------------------------------------------------------------
+
