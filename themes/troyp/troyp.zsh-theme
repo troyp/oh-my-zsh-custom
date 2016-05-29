@@ -11,6 +11,7 @@ local chars="
 └─┴─┘
 │├┤┼╶╵╴╷╎╌❬❭〈〉
 ⟪⟫⦑⦒⧼⧽〈〉《》︽︾︿﹀✗✓✔❌𐄂
+⟦⟧━⦇⦈━⦉⦊━〚〛━【】━〖〗━〔〕━《》━〘〙
 "
 
 # -------------------------------------------------------------------------------
@@ -33,6 +34,10 @@ prompt_hook() {
     ;
 }
 
+git-dir-is-dirty() {
+    test $(git diff --shortstat 2>>/dev/null | wc -l) != 0;
+}
+
 # -------------------------------------------------------------------------------
 # ,--------,
 # | prompt |
@@ -49,7 +54,13 @@ get_prompt() {
     local FG2="$FG[$2]";
     local FG3="${FG[$3]:-$FG1}";
     local FG4="$FG[$2]";
-    if (( error > 0 )); then FG4="$FG[009]"; fi
+    local FGe="$FG[009]";
+    local FGs="$FG[047]";
+    if `git-dir-is-dirty`; then
+        FG4="$FGe";
+    elif [[ -d .git ]]; then
+        FG4="$FGs";
+    fi
 
     local datestr="$(date '+%H:%M, %a %d %b %y')";
     local datestrlen=`getlen "$datestr"`;
@@ -65,10 +76,17 @@ get_prompt() {
 
     local left="┏━❰$datestr❱━❰$dirstr_adj❱━";
     local left_col="$FG4┏━$FG2❰$FG1$datestr$FG2❱━❰$FG1$dirstr_adj_path$FG3$dirstr_adj_dir$FG2❱━";
-    local left_len=`getlen $left_col`;
+
+    if (( error > 0 )); then
+        local left_error_suffix="━━━$FG1❰ %{$FGe%}✗ ${FG[011]}error: $error$FG1 ❱$FG2━";
+    else
+        local left_error_suffix="━━━❰ %{$FGs%}✔ $FG2❱━";
+    fi
+
+    local left_len=`getlen $left_col$left_error_suffix`;
     local left_padding=`strrep '━' $((left_width - left_len - 1))`
     local left_padded="$left${left_padding}┫";
-    local left_col_padded="$left_col${left_padding}┫";
+    local left_col_padded="$left_col$left_error_suffix${left_padding}┫";
     local left2_col="$FG4┗━$FG2❰%{$FG3%}%!%{$FG2%}❱━❱❱$(git_prompt_info)";
 
     eval "$prompt_hook";
@@ -76,11 +94,18 @@ get_prompt() {
     printf "%s\n%s" "$left_col_padded" "$left2_col %{$reset_color%}";
 }
 
+ git_prompt_setup() {
+     local FG1="$FG[$1]";
+     local FG2="$FG[$2]";
+     local FG3="${FG[$3]:-$FG1}";
+     ZSH_THEME_GIT_PROMPT_PREFIX=" %{$FG3%}git:%{$FG1%}";
+     ZSH_THEME_GIT_PROMPT_SUFFIX=" %{$FG2❱❱$reset_color%}";
+     ZSH_THEME_GIT_PROMPT_DIRTY="";
+     ZSH_THEME_GIT_PROMPT_CLEAN="";
+ }
+
 PROMPT="\$(get_prompt 111 003 047)";
-ZSH_THEME_GIT_PROMPT_PREFIX=" %{$FG[047]%}git:%{$FG[111]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX=" %{$FG[003]❱❱$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY=" %{$FG[009]%}✗"
-ZSH_THEME_GIT_PROMPT_CLEAN=" %{$FG[190]%}✔"
+git_prompt_setup 111 003 047;
 
 # -------------------------------------------------------------------------------
 
