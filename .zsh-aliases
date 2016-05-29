@@ -1,2 +1,7 @@
+#                                                                 -*- shell-script -*-
+
+#-------------------
+# ZSH/SHELL ALIASES.
+#-------------------
 alias help=run-help
-alias lscolors=spectrum-ls
+alias lscolors=spectrum_ls
