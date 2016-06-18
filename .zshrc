@@ -1,4 +1,6 @@
 #                                                          -*- shell-script -*-
+[[ ! -z $DEBUG  ]] && echo "sourcing .zshrc"
+
 export TERM="xterm-256color"
 
 # Path to your oh-my-zsh installation.
@@ -57,22 +59,45 @@ POWERLEVEL9K_MODE='awesome-fontconfig'
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git dirhistory)
 
 # User configuration
 
-  # export PATH="/home/troy/.rvm/gems/ruby-2.1.2/bin:/home/troy/.rvm/gems/ruby-2.1.2@global/bin:/home/troy/.rvm/rubies/ruby-2.1.2/bin:/home/troy/.nvm/versions/node/v0.12.7/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/troy/.rvm/bin:/home/troy/.linuxbrew/bin:/home/troy/.fzf:/home/troy/.emacs.d:/home/troy/.scripts:/home/troy/.cabal/bin:/home/troy/.nimble/bin:/home/troy/gowork/bin:/home/troy/code/working:/home/troy/code/scripts:/home/troy/Android/Sdk/tools:/home/troy/Android/Sdk/platform-tools:/opt/scala/bin:/opt/j64-804/bin:/opt:/opt/bin:/opt/scripts:/opt/firefox:/opt/calibre:/opt/xcape:/opt/LightTable:/opt/sbt/bin:/opt/racket/bin:/opt/eclipse:/opt/nim/bin:/opt/clean/bin:/opt/rstudio/bin:/opt/processing:/opt/tor-browser:/opt/helpdeco:/opt/lfe-master/bin:/usr/local/texlive/2014/bin/x86_64-linux:/opt/pdf-diff:/opt/pdfdir:/opt/sejda-console/bin:/opt/jpdfbookmarks:/opt/info2html:/opt/SublimeText2:/opt/peazip:/opt/peazip/res:/opt/lilyterm/bin:/opt/phantomjs-2.0.0/bin:/opt/icon/bin:/home/troy/.fzf/bin"
-# export MANPATH="/usr/local/man:$MANPATH"
-
-if [ -f ~/.shrc ]; then            source ~/.shrc;            fi
-if [ -f $ZSH/oh-my-zsh.sh ]; then  source $ZSH/oh-my-zsh.sh;  fi
-if [ -f ~/.zsh-functions ]; then   source ~/.zsh-functions;   fi
-if [ -f ~/.zsh-aliases ]; then     source ~/.zsh-aliases;     fi
+#     ,------------------,
+#     | LOAD OTHER FILES |
+#     '------------------'
+# startup files
+if [[ -f ~/.shrc ]];           then source ~/.shrc;            fi
+if [[ -f $ZSH/oh-my-zsh.sh ]]; then
+    source $ZSH/oh-my-zsh.sh;
+    # reload prompt (since oh-my-zsh.sh doesn't do it properly)
+    if [[ -e "$ZSH_CUSTOM/$ZSH_THEME.zsh-theme" ]]; then
+        source "$ZSH_CUSTOM/$ZSH_THEME.zsh-theme"
+    elif [[ -e "$ZSH_CUSTOM/themes/$ZSH_THEME.zsh-theme" ]]; then
+        source "$ZSH_CUSTOM/themes/$ZSH_THEME.zsh-theme"
+    fi
+fi
+# aliases
+if [[ -f ~/.zsh-aliases ]];    then source ~/.zsh-aliases;     fi
+# functions
+if [[ -f ~/.zsh-functions ]];  then source ~/.zsh-functions;   fi
 
 zsh_URL=https://sourceforge.net/projects/zsh/files/latest/download?source=typ_redirect
 
-bindkey "^P" up-line-or-search
-bindkey "^N" down-line-or-search
+bindkey "^P" history-beginning-search-backward
+bindkey "^N" history-beginning-search-forward
+bindkey "^[[A" up-line-or-search
+bindkey "^[[B" down-line-or-search
+bindkey "^R" history-incremental-pattern-search-backward
+bindkey "^S" history-incremental-pattern-search-forward
+# override oh-my-zsh
+bindkey '\el' down-case-word
+bindkey -s '^x^z' ~/.oh-my-zsh/custom/
+
+# foreground widget: C-z
+fgwidget() { fg }
+zle -N fgwidget
+bindkey '^Z' fgwidget
 
 zstyle ':completion:*' list-prompt   ''
 zstyle ':completion:*' select-prompt ''
@@ -106,5 +131,3 @@ promptinit
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
