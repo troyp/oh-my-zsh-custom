@@ -65,13 +65,30 @@ get_prompt() {
     local datestr="$(date '+%H:%M, %a %d %b %y')";
     local datestrlen=`getlen "$datestr"`;
     local dirstr="${PWD/$HOME/~}";
+
+    # ===========================================================
+    # ADJUSTED DIRECTORY: remove path prefixes until short enough
+    # ===========================================================
     local dirstr_adj="$dirstr";
     while ((`getlen "$dirstr_adj"` > left_width - 9)); do
-        dirstr_adj=`print ${(S)dirstr_adj/?*\//}`; done;
+        dirstr_adj=`print ${(S)dirstr_adj/?*\//}`;
+    done;
+
+    # =======================
+    # ADJUSTED DIRECTORY PATH
+    # =======================
+    # case "$dirstr_adj" in
+    #     ~) dirstr_adj_path="" ;;
+    #     *) dirstr_adj_path="{dirstr_adj%/*}"/ ;;
+    # esac
     local dirstr_adj_path="${dirstr_adj%/*}/";
     if [ "$dirstr_adj" = "~" ]; then
         dirstr_adj_path="";
     fi
+
+    # =========================
+    # ADJUSTED DIRECTORY PROPER
+    # =========================
     local dirstr_adj_dir="${dirstr_adj##*/}";
 
     local left="┏━❰$datestr❱━❰$dirstr_adj❱━";
