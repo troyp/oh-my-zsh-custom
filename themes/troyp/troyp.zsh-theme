@@ -79,7 +79,6 @@ get_prompt() {
             dirstr_adj="${dirstr_adj:0:$maxlen_adj}..."
         fi
     done;
-    echo `getlen "$dirstr_adj"` "," "$left_width"
 
     # =======================
     # ADJUSTED DIRECTORY PATH
