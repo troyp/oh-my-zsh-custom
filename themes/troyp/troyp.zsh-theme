@@ -70,9 +70,16 @@ get_prompt() {
     # ADJUSTED DIRECTORY: remove path prefixes until short enough
     # ===========================================================
     local dirstr_adj="$dirstr";
-    while ((`getlen "$dirstr_adj"` > left_width - 9)); do
-        dirstr_adj=`print ${(S)dirstr_adj/?*\//}`;
+    maxlen=$((left_width - 47))
+    while ((`getlen "$dirstr_adj"` > maxlen)); do
+        if [[ "$dirstr_adj" =~ .*/.* ]]; then
+            dirstr_adj=`print ${(S)dirstr_adj/?*\//}`;
+        else
+            local maxlen_adj=$((maxlen - 3))
+            dirstr_adj="${dirstr_adj:0:$maxlen_adj}..."
+        fi
     done;
+    echo `getlen "$dirstr_adj"` "," "$left_width"
 
     # =======================
     # ADJUSTED DIRECTORY PATH
@@ -81,7 +88,12 @@ get_prompt() {
     #     ~) dirstr_adj_path="" ;;
     #     *) dirstr_adj_path="{dirstr_adj%/*}"/ ;;
     # esac
-    local dirstr_adj_path="${dirstr_adj%/*}/";
+    local dirstr_adj_path
+    if [[ "$dirstr_adj" =~ .*/.* ]]; then
+        dirstr_adj_path="${dirstr_adj%/*}/";
+    else
+        dirstr_adj_path="";
+    fi
     if [ "$dirstr_adj" = "~" ]; then
         dirstr_adj_path="";
     fi
@@ -92,6 +104,7 @@ get_prompt() {
     local dirstr_adj_dir="${dirstr_adj##*/}";
 
     local left="┏━❰$datestr❱━❰$dirstr_adj❱━";
+    # 28 chars + len(dirstr_adj)
     local left_col="$FG4┏━$FG2❰$FG1$datestr$FG2❱━❰$FG1$dirstr_adj_path$FG3$dirstr_adj_dir$FG2❱━";
 
     if (( error > 0 )); then
@@ -99,11 +112,13 @@ get_prompt() {
     else
         local left_error_suffix="━━━❰ %{$FGs%}✔ $FG2❱━";
     fi
+    # 18 chars (error) or 9 chars (no error)
 
     local left_len=`getlen $left_col$left_error_suffix`;
     local left_padding=`strrep '━' $((left_width - left_len - 1))`
     local left_padded="$left${left_padding}┫";
     local left_col_padded="$left_col$left_error_suffix${left_padding}┫";
+    # (28 + 18 + 1 =) 47 chars + padding
     local left2_col="$FG4┗━$FG2❰%{$FG3%}%!%{$FG2%}❱━❱❱$(git_prompt_info)";
 
     eval "$prompt_hook";
