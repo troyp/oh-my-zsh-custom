@@ -22,7 +22,8 @@ local chars="
 getlen() {
     # http://stackoverflow.com/questions/10564314/
     local zero='%([BSUbfksu]|([FBK]|){*})';
-    echo ${#${(S%%)1//$~zero/}};
+    local plain=${(S%%)1//$~zero/};
+    printf "$plain" | wc -L;
 }
 
 strrep() {
