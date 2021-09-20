@@ -48,7 +48,7 @@ git-dir-is-dirty() {
 
 get_prompt() {
     # inspired by Ayatoli's prompt (ayozone.org)
-    local error="${?:0:1}";
+    local error="$?";
     # $PROMPT_ADJUST variable reduces prompt length
     local promptadjust=${PROMPT_ADJUST:-0};
     local adjustment=$(( promptadjust + 3 ));
